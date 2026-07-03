@@ -1,0 +1,13 @@
+# Render.com free deployment config
+# This file tells Render how to run your app for FREE
+
+services:
+  - type: web
+    name: india-finance-brief
+    runtime: python
+    buildCommand: "echo ready"
+    startCommand: "python server.py"
+    envVars:
+      - key: PORT
+        value: 8765
+    plan: free
