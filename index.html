@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Finance Brief</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --card: #1a2236;
+  --border: #1e2d47;
+  --accent: #3b82f6;
+  --accent2: #10b981;
+  --red: #ef4444;
+  --gold: #f59e0b;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --up: #10b981;
+  --dn: #ef4444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* TOP BAR */
+.topbar {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-icon { font-size:22px; }
+.logo-text { font-size:17px; font-weight:700; color:#fff; }
+.logo-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.clock { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--gold); }
+.fetch-btn {
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:8px 16px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:all .2s;
+}
+.fetch-btn:hover { background:#2563eb; }
+.fetch-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+/* MARKET TICKER */
+.ticker {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 24px;
+  display:flex;
+  gap:28px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.ticker::-webkit-scrollbar { display:none; }
+.tick { display:flex; flex-direction:column; gap:2px; min-width:fit-content; }
+.tick-name { font-size:10px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.8px; }
+.tick-val { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; }
+.tick-chg { font-family:'JetBrains Mono',monospace; font-size:11px; }
+.up { color:var(--up); }
+.dn { color:var(--dn); }
+.tick-divider { width:1px; background:var(--border); margin:0 4px; }
+
+/* LAYOUT */
+.layout {
+  max-width:1200px;
+  margin:0 auto;
+  padding:24px;
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:24px;
+}
+
+/* NEWS SECTION */
+.news-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.news-title {
+  font-size:18px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.live-pill {
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  background:rgba(16,185,129,.12);
+  color:var(--up);
+  border:1px solid rgba(16,185,129,.2);
+  border-radius:4px;
+  padding:2px 8px;
+}
+.fetch-time { font-size:12px; color:var(--muted); }
+
+.news-list { display:flex; flex-direction:column; gap:10px; }
+
+.ncard {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px 18px;
+  transition:border-color .2s;
+  position:relative;
+}
+.ncard:hover { border-color:#2d4a7a; }
+.ncard-top { display:flex; align-items:center; gap:8px; margin-bottom:9px; flex-wrap:wrap; }
+.nnum { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); background:rgba(59,130,246,.1); border-radius:4px; padding:2px 7px; }
+.ncat { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; padding:2px 8px; border-radius:4px; }
+.cm  { background:rgba(59,130,246,.1);  color:#60a5fa; }
+.ce  { background:rgba(16,185,129,.1);  color:#34d399; }
+.cc  { background:rgba(245,158,11,.1);  color:#fbbf24; }
+.ccr { background:rgba(139,92,246,.1);  color:#a78bfa; }
+.cb  { background:rgba(59,130,246,.1);  color:#93c5fd; }
+.cco { background:rgba(239,68,68,.1);   color:#f87171; }
+.cf  { background:rgba(100,116,139,.1); color:#94a3b8; }
+.nsrc { margin-left:auto; font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.nhead { font-size:14px; font-weight:600; line-height:1.5; margin-bottom:7px; }
+.nsum  { font-size:12px; color:var(--muted); line-height:1.6; }
+.nfoot { display:flex; align-items:center; justify-content:space-between; margin-top:9px; }
+.ntime { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.nlink { font-size:11px; color:var(--accent); text-decoration:none; }
+.nlink:hover { text-decoration:underline; }
+
+/* EMPTY STATE */
+.empty {
+  text-align:center;
+  padding:60px 20px;
+  border:1px dashed var(--border);
+  border-radius:12px;
+}
+.empty .ico { font-size:40px; margin-bottom:12px; }
+.empty h3 { font-size:16px; font-weight:600; margin-bottom:8px; }
+.empty p { font-size:13px; color:var(--muted); line-height:1.7; }
+
+/* SIDEBAR */
+.sidebar { display:flex; flex-direction:column; gap:18px; }
+
+.panel {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+}
+.panel-title {
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--muted);
+  margin-bottom:14px;
+}
+
+/* MARKET DETAIL */
+.mrow {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.mrow:last-child { border:none; }
+.mname { font-size:13px; font-weight:600; }
+.msub  { font-size:11px; color:var(--muted); margin-top:1px; }
+.mval  { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; text-align:right; }
+.mchg  { font-family:'JetBrains Mono',monospace; font-size:11px; text-align:right; margin-top:1px; }
+
+/* ANALYSIS */
+.analysis { font-size:13px; color:#94a3b8; line-height:1.75; }
+
+/* SCHEDULE */
+.srow { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.slbl { font-size:13px; color:var(--muted); }
+.srow input[type=time] {
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:6px 10px;
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  outline:none;
+  width:110px;
+}
+.tog { width:38px; height:21px; background:#1e3a5f; border-radius:11px; position:relative; cursor:pointer; border:none; transition:background .2s; }
+.tog.on { background:var(--accent); }
+.tog::after { content:''; position:absolute; width:15px; height:15px; background:#fff; border-radius:8px; top:3px; left:3px; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.tog.on::after { left:20px; }
+.save-btn {
+  width:100%; padding:9px; border-radius:7px; font-size:13px; font-weight:600;
+  background:var(--accent); color:#fff; border:none; cursor:pointer; margin-top:6px;
+  transition:background .2s;
+}
+.save-btn:hover { background:#2563eb; }
+
+/* RECIPIENTS */
+.rinput { display:flex; gap:7px; margin-bottom:10px; }
+.rinput input {
+  flex:1; background:rgba(255,255,255,.05); border:1px solid var(--border);
+  border-radius:6px; padding:7px 10px; color:var(--text); font-size:12px; outline:none;
+}
+.rinput input:focus { border-color:var(--accent); }
+.radd { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:7px 12px; font-size:13px; font-weight:700; cursor:pointer; }
+.rlist { display:flex; flex-direction:column; gap:6px; max-height:120px; overflow-y:auto; }
+.ritem { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:12px; }
+.ritem button { background:none; border:none; color:var(--dn); cursor:pointer; font-size:13px; }
+
+/* ACTION BUTTONS */
+.abtn {
+  display:flex; align-items:center; gap:9px;
+  padding:10px 13px; border-radius:8px;
+  font-size:12px; font-weight:600;
+  cursor:pointer; border:none; width:100%;
+  text-align:left; margin-bottom:8px;
+  transition:all .2s;
+}
+.abtn:last-child { margin-bottom:0; }
+.abtn .ai { font-size:16px; }
+.abtn .as { font-size:11px; font-weight:400; color:rgba(255,255,255,.55); display:block; margin-top:1px; }
+.awa  { background:rgba(37,211,102,.12); color:#25D366; border:1px solid rgba(37,211,102,.2); }
+.awa:hover { background:rgba(37,211,102,.2); }
+.adl  { background:rgba(59,130,246,.1); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+.adl:hover { background:rgba(59,130,246,.18); }
+.acp  { background:rgba(245,158,11,.1); color:var(--gold); border:1px solid rgba(245,158,11,.2); }
+.acp:hover { background:rgba(245,158,11,.18); }
+
+/* LOADING */
+.overlay { display:none; position:fixed; inset:0; background:rgba(10,15,30,.9); z-index:100; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.overlay.on { display:flex; }
+.lbox { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:32px; text-align:center; width:280px; }
+.spin { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.lbox h3 { font-size:15px; font-weight:600; margin-bottom:5px; }
+.lbox p  { font-size:12px; color:var(--muted); }
+.lstep { display:flex; align-items:center; gap:8px; padding:6px 0; font-size:12px; color:var(--muted); border-bottom:1px solid var(--border); text-align:left; }
+.lstep:last-child { border:none; }
+.lstep.act { color:var(--accent); }
+.lstep.done { color:var(--up); }
+.lsi { width:14px; font-size:11px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:12px 16px; font-size:13px; z-index:200; transform:translateY(60px); opacity:0; transition:all .3s; max-width:280px; }
+.toast.show { transform:translateY(0); opacity:1; }
+.tok { border-color:rgba(16,185,129,.35); color:var(--up); }
+.terr { border-color:rgba(239,68,68,.35); color:var(--dn); }
+.tinf { border-color:rgba(59,130,246,.35); color:#60a5fa; }
+
+/* SERVER BANNER */
+.sbanner { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:10px; padding:16px 18px; margin-bottom:18px; display:none; }
+.sbanner.show { display:block; }
+.sbanner h3 { color:var(--gold); font-size:13px; font-weight:700; margin-bottom:6px; }
+.sbanner p { font-size:12px; color:#94a3b8; line-height:1.7; }
+.sbanner code { background:rgba(0,0,0,.3); border-radius:3px; padding:1px 6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#f97316; }
+
+@media(max-width:800px) {
+  .layout { grid-template-columns:1fr; padding:16px; }
+  .topbar { padding:0 16px; }
+  .ticker { padding:10px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-icon">📈</span>
+    <div>
+      <div class="logo-text">India Finance Brief</div>
+      <div class="logo-sub">Free · No API Key</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="clock" id="clock">--:--:--</span>
+    <button class="fetch-btn" id="fetchBtn" onclick="doFetch()">⚡ Fetch Now</button>
+  </div>
+</div>
+
+<!-- MARKET TICKER -->
+<div class="ticker" id="ticker">
+  <div class="tick"><span class="tick-name">SENSEX</span><span class="tick-val" id="t-sensex">—</span><span class="tick-chg" id="tc-sensex">—</span></div>
+  <div class="tick-divider"></div>
+  <div class="tick"><span class="tick-name">NIFTY 50</span><span class="tick-val" id="t-nifty">—</span><span class="tick-chg" id="tc-nifty">—</span></div>
+  <div class="tick-divider"></div>
+  <div class="tick"><span class="tick-name">USD/INR</span><span class="tick-val" id="t-usdinr">—</span><span class="tick-chg" id="tc-usdinr">—</span></div>
+  <div class="tick-divider"></div>
+  <div class="tick"><span class="tick-name">Gold</span><span class="tick-val" id="t-gold">—</span><span class="tick-chg" id="tc-gold">—</span></div>
+  <div class="tick-divider"></div>
+  <div class="tick"><span class="tick-name">Crude Oil</span><span class="tick-val" id="t-crude">—</span><span class="tick-chg" id="tc-crude">—</span></div>
+  <div class="tick-divider"></div>
+  <div class="tick"><span class="tick-name">Bitcoin</span><span class="tick-val" id="t-bitcoin">—</span><span class="tick-chg" id="tc-bitcoin">—</span></div>
+</div>
+
+<!-- LOADING -->
+<div class="overlay" id="overlay">
+  <div class="lbox">
+    <div class="spin"></div>
+    <h3>Fetching Finance News</h3>
+    <p>Scanning Indian finance sources…</p>
+    <div style="margin-top:14px">
+      <div class="lstep" id="l1"><span class="lsi">⏳</span>Connecting to feeds</div>
+      <div class="lstep" id="l2"><span class="lsi">⏳</span>Getting market prices</div>
+      <div class="lstep" id="l3"><span class="lsi">⏳</span>Picking top stories</div>
+      <div class="lstep" id="l4"><span class="lsi">⏳</span>Formatting brief</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="layout">
+  <div>
+    <!-- Server banner -->
+    <div class="sbanner" id="sbanner">
+      <h3>⚙️ Run the local server first</h3>
+      <p>Double-click <code>START.bat</code> (Windows) or run <code>python server.py</code> in this folder,
+      then open <code>http://localhost:8765</code> in your browser.</p>
+    </div>
+
+    <!-- News heading -->
+    <div class="news-header">
+      <div class="news-title">📰 Finance & Market News <span class="live-pill" id="livePill" style="display:none">Live</span></div>
+      <span class="fetch-time" id="fetchTime"></span>
+    </div>
+
+    <!-- News list -->
+    <div id="newsArea">
+      <div class="empty">
+        <div class="ico">📈</div>
+        <h3>Your finance brief is ready</h3>
+        <p>Click <strong>⚡ Fetch Now</strong> to load today's top finance &amp; market news<br>from ET, Moneycontrol, LiveMint, Business Standard &amp; more.<br><br>100% free — no API key needed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Market detail -->
+    <div class="panel">
+      <div class="panel-title">📊 Markets</div>
+      <div id="mktDetail"><p style="font-size:12px;color:var(--muted);font-style:italic">Click Fetch to load…</p></div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="panel">
+      <div class="panel-title">🧠 Market Summary</div>
+      <div class="analysis" id="analysis" style="font-size:12px;color:var(--muted);font-style:italic">Analysis appears after fetch…</div>
+    </div>
+
+    <!-- Schedule -->
+    <div class="panel">
+      <div class="panel-title">⏰ Auto Schedule</div>
+      <div class="srow"><span class="slbl">Daily fetch time</span><input type="time" id="schedTime" value="07:00"></div>
+      <div class="srow"><span class="slbl">Auto-fetch on</span><button class="tog on" id="togAuto" onclick="this.classList.toggle('on')"></button></div>
+      <div class="srow"><span class="slbl">Auto-send WhatsApp</span><button class="tog" id="togWA" onclick="this.classList.toggle('on')"></button></div>
+      <button class="save-btn" onclick="saveSchedule()">Save</button>
+    </div>
+
+    <!-- Recipients -->
+    <div class="panel">
+      <div class="panel-title">👥 WhatsApp Contacts</div>
+      <div class="rinput">
+        <input id="rInp" type="text" placeholder="+91 98765 43210" onkeydown="if(event.key==='Enter')addR()">
+        <button class="radd" onclick="addR()">+</button>
+      </div>
+      <div class="rlist" id="rList"><div style="font-size:11px;color:var(--muted);text-align:center;padding:6px">No contacts yet</div></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel">
+      <div class="panel-title">🚀 Share</div>
+      <button class="abtn awa" onclick="sendWA()">
+        <span class="ai">💬</span>
+        <div><div>Send via WhatsApp</div><span class="as">Opens WhatsApp for each contact</span></div>
+      </button>
+      <button class="abtn adl" onclick="doPrint()">
+        <span class="ai">📥</span>
+        <div><div>Download PDF</div><span class="as">Save &amp; share manually</span></div>
+      </button>
+      <button class="abtn acp" onclick="doCopy()">
+        <span class="ai">📋</span>
+        <div><div>Copy Text</div><span class="as">Paste into any chat</span></div>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8765';
+let newsData = [], mkt = {}, mktText = '';
+const recips = [];
+let paused = false, schedTmr = null;
+
+// Clock
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN',{hour12:false});
+},1000);
+
+// Category → CSS class
+const catCls = {Markets:'cm',Economy:'ce',Currency:'cc',Crypto:'ccr',Banking:'cb',Commodity:'cco',Finance:'cf',Corporate:'cm'};
+
+// ── SERVER CHECK ────────────────────────────────────────────────────────────
+async function checkServer() {
+  try {
+    const r = await fetch(API+'/api/status',{signal:AbortSignal.timeout(3000)});
+    if(r.ok){ document.getElementById('sbanner').classList.remove('show'); return true; }
+  } catch {}
+  document.getElementById('sbanner').classList.add('show');
+  return false;
+}
+checkServer();
+setInterval(checkServer, 20000);
+
+// ── SCHEDULER ───────────────────────────────────────────────────────────────
+function startSched() {
+  if(schedTmr) clearInterval(schedTmr);
+  schedTmr = setInterval(() => {
+    if(paused || !document.getElementById('togAuto').classList.contains('on')) return;
+    const [h,m] = document.getElementById('schedTime').value.split(':');
+    const n = new Date();
+    if(n.getHours()==h && n.getMinutes()==m && n.getSeconds()<6) doFetch();
+  }, 5000);
+}
+startSched();
+function saveSchedule() {
+  const t = document.getElementById('schedTime').value;
+  showToast('✅ Saved — auto-fetch at '+t,'tok');
+}
+
+// ── FETCH ───────────────────────────────────────────────────────────────────
+async function doFetch() {
+  if(!await checkServer()) { showToast('❌ Server not running — run server.py','terr'); return; }
+  document.getElementById('fetchBtn').disabled = true;
+  showOverlay(true);
+
+  try {
+    await tick('l1', 400);
+    const [nr, mr] = await Promise.allSettled([
+      fetch(API+'/api/news'),
+      fetch(API+'/api/market'),
+    ]);
+    await tick('l2', 350);
+
+    if(nr.status==='fulfilled' && nr.value.ok) {
+      const d = await nr.value.json();
+      newsData = d.news || [];
+      renderNews(d);
+    } else throw new Error('News fetch failed');
+
+    await tick('l3', 250);
+
+    if(mr.status==='fulfilled' && mr.value.ok) {
+      const d = await mr.value.json();
+      mkt = d.market || {};
+      mktText = d.marketAnalysis || '';
+      renderMarket(d);
+      renderTicker(d.market || {}, d.labels || {});
+    }
+
+    await tick('l4', 200);
+    if(document.getElementById('togWA').classList.contains('on') && recips.length) sendWA(true);
+
+  } catch(e) {
+    showToast('❌ '+e.message,'terr');
+  }
+
+  showOverlay(false);
+  document.getElementById('fetchBtn').disabled = false;
+}
+
+// ── RENDER TICKER ───────────────────────────────────────────────────────────
+function renderTicker(m, labels) {
+  const keys = ['sensex','nifty','usdinr','gold','crude','bitcoin'];
+  for(const k of keys) {
+    const d = m[k];
+    if(!d) continue;
+    const cls = d.up ? 'up' : 'dn', arr = d.up ? '▲' : '▼';
+    const vEl = document.getElementById('t-'+k);
+    const cEl = document.getElementById('tc-'+k);
+    if(vEl) vEl.textContent = d.value;
+    if(cEl) { cEl.textContent = arr+' '+d.change; cEl.className = 'tick-chg '+cls; }
+  }
+}
+
+// ── RENDER NEWS ─────────────────────────────────────────────────────────────
+function renderNews(d) {
+  const today = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('fetchTime').textContent = 'Updated '+d.fetchTime+' · '+(d.sources||[]).join(', ');
+  document.getElementById('livePill').style.display = '';
+
+  let html = '<div class="news-list">';
+  for(const n of newsData) {
+    const cc = catCls[n.category]||'cf';
+    const lnk = n.link ? `<a class="nlink" href="${n.link}" target="_blank" rel="noopener">Read →</a>` : '';
+    html += `<div class="ncard">
+      <div class="ncard-top">
+        <span class="nnum">#${n.id}</span>
+        <span class="ncat ${cc}">${n.category}</span>
+        <span class="nsrc">${n.source}</span>
+      </div>
+      <div class="nhead">${n.headline}</div>
+      <div class="nsum">${n.summary}</div>
+      <div class="nfoot"><span class="ntime">🕐 ${n.time}</span>${lnk}</div>
+    </div>`;
+  }
+  html += '</div>';
+  if(!newsData.length) html = '<div class="empty"><div class="ico">😔</div><h3>No stories fetched</h3><p>All sources were unreachable.<br>Please try again in a few minutes.</p></div>';
+  document.getElementById('newsArea').innerHTML = html;
+  showToast('✅ '+newsData.length+' finance stories loaded','tok');
+}
+
+// ── RENDER MARKET ───────────────────────────────────────────────────────────
+function renderMarket(d) {
+  const m = d.market || {};
+  const info = {sensex:['SENSEX','BSE Index'],nifty:['NIFTY 50','NSE Index'],usdinr:['USD/INR','Exchange Rate'],gold:['Gold','USD/oz'],crude:['Crude Oil','Brent USD/bbl'],bitcoin:['Bitcoin','BTC/USD']};
+  let html = '';
+  for(const [k,[name,sub]] of Object.entries(info)) {
+    if(!m[k]) continue;
+    const cls = m[k].up?'up':'dn', arr = m[k].up?'▲':'▼';
+    html += `<div class="mrow">
+      <div><div class="mname">${name}</div><div class="msub">${sub}</div></div>
+      <div><div class="mval">${m[k].value}</div><div class="mchg ${cls}">${arr} ${m[k].change}</div></div>
+    </div>`;
+  }
+  document.getElementById('mktDetail').innerHTML = html || '<p style="font-size:12px;color:var(--muted)">Unavailable</p>';
+  document.getElementById('analysis').textContent = d.marketAnalysis || '';
+  document.getElementById('analysis').className = 'analysis';
+}
+
+// ── WHATSAPP TEXT ────────────────────────────────────────────────────────────
+function buildText() {
+  const today = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  let t = `📈 *INDIA FINANCE BRIEF*\n📅 ${today}\n━━━━━━━━━━━━━━━━\n\n`;
+  if(mktText) t += `📊 *MARKET UPDATE*\n${mktText}\n\n━━━━━━━━━━━━━━━━\n\n`;
+  t += `📰 *TOP ${newsData.length} FINANCE STORIES*\n\n`;
+  for(const n of newsData) t += `*${n.id}. ${n.headline}*\n${n.summary}\n_(${n.source} · ${n.time})_\n\n`;
+  t += `━━━━━━━━━━━━━━━━\n_India Finance Brief 📈_`;
+  return t;
+}
+function sendWA(silent=false) {
+  if(!newsData.length) { showToast('⚠️ Fetch first!','terr'); return; }
+  if(!recips.length)   { if(!silent) showToast('⚠️ Add contacts first!','terr'); return; }
+  const enc = encodeURIComponent(buildText());
+  for(const n of recips) window.open(`https://wa.me/${n.replace(/\s/g,'').replace(/^\+/,'')}?text=${enc}`,'_blank');
+  if(!silent) showToast(`✅ Opened WhatsApp for ${recips.length} contact(s)`,'tok');
+}
+function doPrint() {
+  if(!newsData.length) { showToast('⚠️ Fetch first!','terr'); return; }
+  const today = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const minfo = {sensex:'SENSEX',nifty:'NIFTY 50',usdinr:'USD/INR',gold:'Gold',crude:'Crude Oil',bitcoin:'Bitcoin'};
+  const mhtml = Object.keys(mkt).length ? `
+    <div style="background:#f8f9fa;border-radius:10px;padding:18px;margin-top:20px">
+      <h2 style="font-family:Georgia,serif;font-size:17px;margin:0 0 12px">📊 Market Snapshot</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${Object.entries(minfo).filter(([k])=>mkt[k]).map(([k,n])=>`
+          <div style="background:#fff;border-radius:7px;padding:10px;border:1px solid #e5e7eb">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;letter-spacing:.6px">${n}</div>
+            <div style="font-size:15px;font-weight:700;margin:3px 0 2px">${mkt[k].value}</div>
+            <div style="font-size:11px;color:${mkt[k].up?'#10b981':'#ef4444'}">${mkt[k].up?'▲':'▼'} ${mkt[k].change}</div>
+          </div>`).join('')}
+      </div>
+      ${mktText?`<div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px;border-radius:0 7px 7px 0;margin-top:14px;font-size:13px;line-height:1.6">${mktText}</div>`:''}
+    </div>` : '';
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>body{font-family:Inter,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:30px 24px;color:#111;font-size:14px}
+  h1{font-family:Georgia,serif;font-size:24px;margin:0}.sub{color:#6b7280;font-size:12px;margin-top:3px}
+  .hdr{border-bottom:3px solid #3b82f6;padding-bottom:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}
+  .logo{color:#3b82f6;font-weight:700;font-size:13px}
+  .ni{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f1f5f9}
+  .num{display:inline-block;background:#3b82f6;color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;margin-right:5px}
+  .cat{display:inline-block;background:#f1f5f9;color:#64748b;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;text-transform:uppercase}
+  .src{font-size:11px;color:#9ca3af;margin-left:6px}
+  .hl{font-size:14px;font-weight:600;margin:6px 0 4px;line-height:1.4}
+  .sm{font-size:12px;color:#64748b;line-height:1.6}
+  .ft{margin-top:24px;text-align:center;color:#9ca3af;font-size:11px;border-top:1px solid #f1f5f9;padding-top:14px}
+  @media print{body{padding:14px}}</style>
+  </head><body>
+  <div class="hdr"><div><h1>📈 India Finance Brief</h1><div class="sub">📅 ${today} · Free Edition</div></div><div class="logo">India Finance Brief</div></div>
+  ${mhtml}
+  <div style="margin-top:20px"><h2 style="font-family:Georgia,serif;font-size:17px;margin:0 0 14px">📰 Top ${newsData.length} Finance Stories</h2>
+  ${newsData.map(n=>`<div class="ni"><span class="num">#${n.id}</span><span class="cat">${n.category}</span><span class="src">${n.source} · ${n.time}</span><div class="hl">${n.headline}</div><div class="sm">${n.summary}</div></div>`).join('')}
+  </div>
+  <div class="ft">India Finance Brief · ${new Date().toLocaleString('en-IN')} · Free Edition</div>
+  </body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),500);
+  showToast('✅ PDF window opened','tok');
+}
+function doCopy() {
+  if(!newsData.length) { showToast('⚠️ Fetch first!','terr'); return; }
+  navigator.clipboard.writeText(buildText()).then(()=>showToast('✅ Copied!','tok')).catch(()=>showToast('❌ Copy failed','terr'));
+}
+
+// ── RECIPIENTS ───────────────────────────────────────────────────────────────
+function addR() {
+  const v = document.getElementById('rInp').value.trim();
+  if(!v||recips.includes(v)) return;
+  recips.push(v); document.getElementById('rInp').value=''; renderR();
+  showToast('✅ Contact added','tok');
+}
+function removeR(n) { const i=recips.indexOf(n); if(i>-1)recips.splice(i,1); renderR(); }
+function renderR() {
+  document.getElementById('rList').innerHTML = recips.length
+    ? recips.map(r=>`<div class="ritem"><span>${r}</span><button onclick="removeR('${r}')">✕</button></div>`).join('')
+    : '<div style="font-size:11px;color:var(--muted);text-align:center;padding:6px">No contacts yet</div>';
+}
+
+// ── OVERLAY / TOAST ──────────────────────────────────────────────────────────
+function showOverlay(on) {
+  document.getElementById('overlay').classList.toggle('on',on);
+  if(!on) ['l1','l2','l3','l4'].forEach(id=>{const e=document.getElementById(id);e.className='lstep';e.querySelector('.lsi').textContent='⏳';});
+}
+function tick(id,ms) {
+  return new Promise(r=>{
+    const e=document.getElementById(id);
+    e.classList.add('act'); e.querySelector('.lsi').textContent='⚡';
+    setTimeout(()=>{ e.classList.remove('act');e.classList.add('done');e.querySelector('.lsi').textContent='✅'; r(); },ms);
+  });
+}
+function showToast(msg,type='tinf') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
